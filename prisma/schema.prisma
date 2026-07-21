@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SALES
+  WAREHOUSE
+  ACCOUNTS
+}
+
+enum CustomerType {
+  RETAIL
+  WHOLESALE
+  DISTRIBUTOR
+}
+
+enum CustomerStatus {
+  LEAD
+  ACTIVE
+  INACTIVE
+}
+
+enum MovementType {
+  IN
+  OUT
+}
+
+enum ChallanStatus {
+  DRAFT
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+
+  challans  Challan[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id            String          @id @default(uuid())
+  customerName  String
+  mobile        String
+  email         String?
+  businessName  String
+  gstNumber     String?
+
+  customerType  CustomerType
+  address       String
+  status        CustomerStatus
+
+  followUpDate  DateTime?
+  notes         String?
+
+  challans      Challan[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Product {
+  id            String   @id @default(uuid())
+
+  productName   String
+  sku           String   @unique
+  category      String
+
+  unitPrice     Float
+
+  stock         Int
+  minimumStock  Int
+
+  warehouse     String
+
+  stockMovements StockMovement[]
+  challanItems   ChallanItem[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model StockMovement {
+  id            String       @id @default(uuid())
+
+  productId     String
+  product       Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  quantity      Int
+  movementType  MovementType
+
+  reason        String
+
+  createdAt     DateTime @default(now())
+}
+
+model Challan {
+  id             String         @id @default(uuid())
+
+  challanNumber  String         @unique
+
+  customerId     String
+  customer       Customer       @relation(fields: [customerId], references: [id])
+
+  createdById    String
+  createdBy      User           @relation(fields: [createdById], references: [id])
+
+  totalQuantity  Int
+
+  status         ChallanStatus
+
+  items          ChallanItem[]
+
+  createdAt      DateTime @default(now())
+}
+
+model ChallanItem {
+  id            String   @id @default(uuid())
+
+  challanId     String
+  challan       Challan  @relation(fields: [challanId], references: [id], onDelete: Cascade)
+
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+
+  productName   String
+  sku           String
+  unitPrice     Float
+
+  quantity      Int
+  lineTotal     Float
+}
