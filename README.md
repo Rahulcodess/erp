@@ -253,7 +253,7 @@ http://localhost:3000
 - Role-based authorization is enforced on protected API endpoints.
 - Inventory movements are recorded whenever stock is added or removed.
 - Sales Challan module is currently a placeholder page.
-
+- API Docs are present in ERP API.postman_collection
 ---
 
 # Known Limitations
