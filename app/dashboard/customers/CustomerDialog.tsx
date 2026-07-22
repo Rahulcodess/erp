@@ -71,6 +71,16 @@ export default function CustomerDialog({
       form.reset();
       setOpen(false);
     } catch (err) {
+        if (axios.isAxiosError(err)) {
+          if (err.response?.status === 403) {
+            alert("Access Denied. You do not have permission to update customers.");
+          } else {
+            alert(err.response?.data?.message || "Failed to update customer");
+          }
+        } else {
+          alert("Something went wrong");
+        }
+      
       console.error(err);
       alert(
         customer
@@ -80,7 +90,7 @@ export default function CustomerDialog({
     }
   }
 
-  return (
+    return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={

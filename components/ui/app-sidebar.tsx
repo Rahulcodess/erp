@@ -77,20 +77,47 @@ export function AppSidebar() {
                   }
                 />
               </SidebarMenuItem>
-
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  render={
-                    <Link
-                      href="/dashboard/inventory"
-                      className="flex w-full items-center gap-3 rounded-md px-3 py-2 transition-colors hover:bg-sidebar-accent"
-                    >
-                      <Boxes size={18} />
-                      <span>Inventory</span>
-                    </Link>
-                  }
-                />
-              </SidebarMenuItem>
+  <SidebarMenuButton
+    render={
+      <Link
+        href="/dashboard/inventory/in"
+        className="flex w-full items-center gap-3 rounded-md px-3 py-2 transition-colors hover:bg-sidebar-accent"
+      >
+        <Boxes size={18} />
+        <span>Stock In</span>
+      </Link>
+    }
+  />
+</SidebarMenuItem>
+
+<SidebarMenuItem>
+  <SidebarMenuButton
+    render={
+      <Link
+        href="/dashboard/inventory/out"
+        className="flex w-full items-center gap-3 rounded-md px-3 py-2 transition-colors hover:bg-sidebar-accent"
+      >
+        <Boxes size={18} />
+        <span>Stock Out</span>
+      </Link>
+    }
+  />
+</SidebarMenuItem>
+
+<SidebarMenuItem>
+  <SidebarMenuButton
+    render={
+      <Link
+        href="/dashboard/inventory/history"
+        className="flex w-full items-center gap-3 rounded-md px-3 py-2 transition-colors hover:bg-sidebar-accent"
+      >
+        <Boxes size={18} />
+        <span>Stock History</span>
+      </Link>
+    }
+  />
+</SidebarMenuItem>
 
               <SidebarMenuItem>
                 <SidebarMenuButton
@@ -110,23 +137,6 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              render={
-                <Link
-                  href="/login"
-                  className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-red-500 transition-colors hover:bg-red-100 dark:hover:bg-red-950"
-                >
-                  <LogOut size={18} />
-                  <span>Logout</span>
-                </Link>
-              }
-            />
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   );
 }

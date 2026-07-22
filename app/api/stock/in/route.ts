@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/client";
-
+import { verifyToken } from "@/lib/auth";
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
   try {
+    const user = verifyToken(req);
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+  
+    if (user.role !== "ADMIN" && user.role !== "WAREHOUSE") {
+      return NextResponse.json(
+        { message: "Access Denied" },
+        { status: 403 }
+      );
+    }
     if (
       !body.productId ||
       body.quantity == null 
@@ -41,6 +56,7 @@ export async function POST(req: NextRequest) {
       data: {
         productId: body.productId,
         quantity: body.quantity,
+        reason:body.reason,
         movementType: "IN",
       },
     });

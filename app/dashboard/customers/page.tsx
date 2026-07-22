@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import CustomerDialog from "./CustomerDialog";
+import { Button } from "@/components/ui/button";
 
 interface Customer {
   id: string;
@@ -57,6 +58,15 @@ export default function CustomersPage() {
 
       fetchCustomers();
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 403) {
+          alert("Access Denied. You do not have permission to update customers.");
+        } else {
+          alert(err.response?.data?.message || "Failed to update customer");
+        }
+      } else {
+        alert("Something went wrong");
+      }
       console.error(err);
       alert("Failed to delete customer");
     }
@@ -93,18 +103,20 @@ export default function CustomersPage() {
               <td className="border p-2">{customer.mobile}</td>
               <td className="border p-2">{customer.status}</td>
 
-              <td className="border p-2 flex gap-2">
+              <td className="border p-2 align-middle">
+              <div className="flex items-center justify-center gap-2">
                 <CustomerDialog
                  customer={customer}
                  fetchCustomers={fetchCustomers}
                    />
 
-                <button
+                <Button
                   onClick={() => deleteCustomer(customer.id)}
                   className="bg-red-600 text-white px-3 py-1 rounded"
                 >
                   Delete
-                </button>
+                </Button>
+                </div>
               </td>
             </tr>
           ))}

@@ -1,0 +1,171 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+interface Product {
+  id: string;
+  productName: string;
+  stock: number;
+}
+
+export default function StockOutPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [form, setForm] = useState({
+    productId: "",
+    quantity: "",
+    reason: "",
+  });
+
+  const fetchProducts = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get("/api/products", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setProducts(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!form.productId) {
+      alert("Please select a product");
+      return;
+    }
+
+    if (Number(form.quantity) <= 0) {
+      alert("Quantity must be greater than 0");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.post(
+        "/api/stock/out",
+        {
+          productId: form.productId,
+          quantity: Number(form.quantity),
+          reason: form.reason,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      alert("Stock removed successfully!");
+
+      setForm({
+        productId: "",
+        quantity: "",
+        reason: "",
+      });
+
+      fetchProducts();
+    }  
+    catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 403) {
+          alert("Access Denied. You do not have permission to update customers.");
+        } else {
+          alert(err.response?.data?.message || "Failed to update customer");
+        }
+      } else {
+        alert("Something went wrong");
+      }
+    
+      console.error(err);
+      alert("Failed to remove stock");
+    }
+  };
+
+  return (
+    <div className="flex justify-center pt-10">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Stock Out</CardTitle>
+        </CardHeader>
+  
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Product</Label>
+  
+            <select
+              className="mt-2 w-full rounded-md border p-2"
+              value={form.productId}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  productId: e.target.value,
+                })
+              }
+            >
+              <option value="">Select Product</option>
+  
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.productName} (Stock: {product.stock})
+                </option>
+              ))}
+            </select>
+          </div>
+  
+          <div>
+            <Label>Quantity</Label>
+  
+            <Input
+              type="number"
+              value={form.quantity}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  quantity: e.target.value,
+                })
+              }
+            />
+          </div>
+  
+          <div>
+            <Label>Reason</Label>
+  
+            <Input
+              value={form.reason}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  reason: e.target.value,
+                })
+              }
+            />
+          </div>
+  
+          <Button className="w-full" onClick={handleSubmit}>
+            Remove Stock
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

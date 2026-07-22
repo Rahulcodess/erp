@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { Button } from "@/components/ui/button";
 import ProductDialog from "./ProductDialog";
 
 interface Product {
@@ -53,9 +53,17 @@ export default function ProductsPage() {
 
       fetchProducts();
     } catch (err) {
-      console.error(err);
-      alert("Failed to delete product");
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 403) {
+          alert("Access Denied. You do not have permission to update customers.");
+        } else {
+          alert(err.response?.data?.message || "Failed to update customer");
+        }
+      } else {
+        alert("Something went wrong");
+      }
     }
+    
   }
 
   useEffect(() => {
@@ -94,18 +102,20 @@ export default function ProductsPage() {
             <td className="border p-2">{product.minimumStock}</td>
             <td className="border p-2">₹{product.unitPrice}</td>
 
-            <td className="border p-2 flex gap-2">
+            <td className="border p-2 align-middle">
+            <div className="flex items-center justify-center gap-2">
               <ProductDialog
                 product={product}
                 fetchProducts={fetchProducts}
               />
 
-              <button
+              <Button
                 onClick={() => deleteProduct(product.id)}
                 className="bg-red-600 text-white px-3 py-1 rounded"
               >
                 Delete
-              </button>
+              </Button>
+              </div>
             </td>
           </tr>
         ))}
