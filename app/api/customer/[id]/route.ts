@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/client";
-
+import { verifyToken } from "@/lib/auth";
 export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -8,6 +8,15 @@ export async function GET(
     const { id } = await params;
   
     try {
+      const user = verifyToken(req);
+
+      if (!user) {
+        return NextResponse.json(
+          { message: "Unauthorized" },
+          { status: 401 }
+        );
+      }
+
       const customer = await prisma.customer.findUnique({
         where: {
           id,
@@ -32,6 +41,7 @@ export async function GET(
     }
   }
   export async function PUT(
+    
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
   ) {
@@ -39,6 +49,21 @@ export async function GET(
     const body = await req.json();
   
     try {
+      const user = verifyToken(req);
+
+      if (!user) {
+        return NextResponse.json(
+          { message: "Unauthorized" },
+          { status: 401 }
+        );
+      }
+    
+      if (user.role !== "ADMIN" && user.role !== "SALES") {
+        return NextResponse.json(
+          { message: "Access Denied" },
+          { status: 403 }
+        );
+      }
       const customer = await prisma.customer.update({
         where: {
           id,
@@ -76,6 +101,22 @@ export async function GET(
     const { id } = await params;
   
     try {
+      const user = verifyToken(req);
+
+      if (!user) {
+        return NextResponse.json(
+          { message: "Unauthorized" },
+          { status: 401 }
+        );
+      }
+    
+      if (user.role !== "ADMIN" && user.role !== "SALES") {
+        return NextResponse.json(
+          { message: "Access Denied" },
+          { status: 403 }
+        );
+      }
+      
       await prisma.customer.delete({
         where: {
           id,

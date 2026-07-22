@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/client";
-export async function GET() {
+import { verifyToken } from "@/lib/auth";
+export async function GET(req:NextRequest) {
     try {
+      const user = verifyToken(req);
+
+      if (!user) {
+        return NextResponse.json(
+          { message: "Unauthorized" },
+          { status: 401 }
+        );
+      }
       const customers = await prisma.customer.findMany({
         orderBy: {
           createdAt: "desc",
@@ -18,6 +27,21 @@ export async function GET() {
   }
   export async function POST(req: NextRequest) {
     try {
+      const user = verifyToken(req);
+
+      if (!user) {
+        return NextResponse.json(
+          { message: "Unauthorized" },
+          { status: 401 }
+        );
+      }
+    
+      if (user.role !== "ADMIN" && user.role !== "SALES") {
+        return NextResponse.json(
+          { message: "Access Denied" },
+          { status: 403 }
+        );
+      }
       const body = await req.json();
   
       const customer = await prisma.customer.create({
@@ -39,8 +63,13 @@ export async function GET() {
   
       return NextResponse.json(customer, { status: 201 });
     } catch (error) {
+      console.error("POST /api/customer error:", error);
+    
       return NextResponse.json(
-        { message: "Failed to create customer" },
+        {
+          message: "Failed to create customer",
+          error: String(error),
+        },
         { status: 500 }
       );
     }
