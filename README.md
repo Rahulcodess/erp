@@ -219,10 +219,10 @@ Run the application
 npm run dev
 ```
 
-The application will be available at
+Live link
 
 ```
-http://localhost:3000
+https://erp-gray-psi.vercel.app
 ```
 
 ---
