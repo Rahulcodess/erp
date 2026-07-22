@@ -58,14 +58,14 @@ export async function GET(req:NextRequest) {
   
       const product = await prisma.product.create({
         data: {
-          productName: body.productName,
-          sku: body.sku,
-          stock: body.stock,
-          unitPrice: body.unitPrice,
-          warehouse: body.warehouse,
-          category: body.category,
-          minimumStock:body.minimumStock
-        },
+            productName: body.productName,
+            sku: body.sku,
+            stock: Number(body.stock),
+            unitPrice: Number(body.unitPrice),
+            minimumStock: Number(body.minimumStock),
+            warehouse: body.warehouse,
+            category: body.category,
+          }
       });
   
       return NextResponse.json(product, { status: 201 });
