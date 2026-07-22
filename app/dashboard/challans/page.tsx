@@ -12,7 +12,7 @@ export default function ChallansPage() {
 
         <CardContent>
           <p className="text-muted-foreground text-lg">
-            🚧 This feature is currently under development.
+            This feature is currently under development.
           </p>
 
           <p className="mt-3 text-sm text-muted-foreground">
