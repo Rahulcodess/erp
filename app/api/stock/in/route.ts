@@ -1,0 +1,57 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/client";
+
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+
+  try {
+    if (
+      !body.productId ||
+      body.quantity == null 
+    ) {
+      return NextResponse.json(
+        { message: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const product = await prisma.product.findUnique({
+      where: {
+        id: body.productId,
+      },
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    await prisma.product.update({
+      where: {
+        id: body.productId,
+      },
+      data: {
+        stock: product.stock + body.quantity,
+      },
+    });
+
+    const movement = await prisma.stockMovement.create({
+      data: {
+        productId: body.productId,
+        quantity: body.quantity,
+        movementType: "IN",
+      },
+    });
+
+    return NextResponse.json(movement);
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      { message: "Failed to add stock" },
+      { status: 500 }
+    );
+  }
+}
